@@ -11,5 +11,12 @@ data class Question(var question: String) {
             "Making apps is fun T",
             "Music is good during studying T"
         )
+        val QUIZ_ANSWERS = arrayOf(
+            false,
+            true,
+            true,
+            true,
+            true
+        )
     }
 }

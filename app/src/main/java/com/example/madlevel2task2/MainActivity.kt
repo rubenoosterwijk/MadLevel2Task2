@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun createItemTouchHelper(): ItemTouchHelper {
-        val callback =  object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT){
+        val callback =  object : ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -61,10 +61,10 @@ class MainActivity : AppCompatActivity() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 var position = viewHolder.adapterPosition
 
-                if (direction == 4) {
+                if (direction == ItemTouchHelper.LEFT) {
                     checkAnswer(false, position)
                 }
-                if (direction == 8) {
+                if (direction == ItemTouchHelper.RIGHT) {
                     checkAnswer(true, position)
                 }
             }
@@ -73,9 +73,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkAnswer(answer: Boolean, position: Int) {
-        val answers = listOf(false, true, true, true, false)
-
-        if (answer == answers[position]){
+        if (Question.QUIZ_ANSWERS[position] == answer){
             questions.removeAt(position)
             questionAdapter.notifyDataSetChanged()
         } else
