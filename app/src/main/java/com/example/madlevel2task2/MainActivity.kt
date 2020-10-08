@@ -2,11 +2,13 @@ package com.example.madlevel2task2
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.widget.Toast
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.madlevel2task2.Question.Companion.FALSE
 import com.example.madlevel2task2.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -27,23 +29,19 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun initViews() {
-
-        binding.rvQuestions.layoutManager =
-            LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
+        binding.rvQuestions.layoutManager =LinearLayoutManager(this@MainActivity, RecyclerView.VERTICAL, false)
+        binding.rvQuestions.addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
         binding.rvQuestions.adapter = questionAdapter
-
-        //Populate the quesions list ...
-        for (i in Question.QUIZ_QUESTIONS.indices) {
-            questions.add(Question(Question.QUIZ_QUESTIONS[i]))
-        }
-
-        binding.rvQuestions.addItemDecoration(
-            DividerItemDecoration(
-                this@MainActivity,
-                DividerItemDecoration.VERTICAL
-            )
-        )
         createItemTouchHelper().attachToRecyclerView(rvQuestions)
+        populateQuestions()
+    }
+
+
+    //Populate the quesions list ...
+    private fun populateQuestions() {
+        for (i in Question.QUIZ_QUESTIONS.indices) {
+            questions.add(Question(Question.QUIZ_QUESTIONS[i], Question.QUIZ_ANSWERS[i]))
+        }
         questionAdapter.notifyDataSetChanged()
     }
 
@@ -59,26 +57,27 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                var position = viewHolder.adapterPosition
-
-                if (direction == ItemTouchHelper.LEFT) {
-                    checkAnswer(false, position)
+                fun checkDirection(): Boolean{
+                    return direction != FALSE
                 }
-                if (direction == ItemTouchHelper.RIGHT) {
-                    checkAnswer(true, position)
+
+                var position = viewHolder.adapterPosition
+                if(questions[position].answer == checkDirection()) {
+                    questions.removeAt(position)
+                    Snackbar.make(rvQuestions,"Noice!", Snackbar.LENGTH_SHORT).show()
+                } else {
+                    Snackbar.make(rvQuestions,"That is incorrect, try again.", Snackbar.LENGTH_SHORT).show()
+                }
+                questionAdapter.notifyDataSetChanged()
+
+                if(questions.size == 0) {
+                    Snackbar.make(rvQuestions,"Very Noice!!, go again maybe?", Snackbar.LENGTH_SHORT).show()
+                    populateQuestions()
+
                 }
             }
         }
-        return ItemTouchHelper((callback))
+        return ItemTouchHelper(callback)
     }
-
-    private fun checkAnswer(answer: Boolean, position: Int) {
-        if (Question.QUIZ_ANSWERS[position] == answer){
-            questions.removeAt(position)
-            questionAdapter.notifyDataSetChanged()
-        } else
-            Toast.makeText(this, "Think Again!", Toast.LENGTH_SHORT).show()
-    }
-
 }
 
